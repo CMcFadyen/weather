@@ -24,14 +24,13 @@ class Weather extends React.Component<WeatherProps> {
 		{name: 'Cape Town', lat: -33.928992, lon: 18.417396},
 		{name: 'Seoul', lat: 37.5666791, lon: 126.9782914}
 	];
-	refreshInterval = 30;
+	refreshInterval = 10;
 	apiKey = process.env.REACT_APP_API_KEY;
 	weatherAPI = process.env.REACT_APP_API;
 	timerId: ReturnType<typeof setTimeout> | null = null;
 	
 	componentDidMount() {
 		const diff = Date.now() - this.props.timestamp;
-		console.log(diff/60/1000);
 		if(diff > this.refreshInterval * 60 * 1000 || !this.props.forecastData || this.props.forecastData.length == 0) {
 			this.fetchWeatherData();
 		} else {
@@ -64,6 +63,10 @@ class Weather extends React.Component<WeatherProps> {
 		);
 	}
 	
+	componentWillUnmount() {
+		if(this.timerId) clearTimeout(this.timerId);
+	}
+	
 	fetchWeatherData() {
 		this.props.clearForecasts();
 		this.timerId = null;
@@ -76,7 +79,6 @@ class Weather extends React.Component<WeatherProps> {
 	}
 	
 	formatApiData(data: any, index: number) {
-		console.log(data);
 		const forecast:CityForecast = {
 			index: index,
 			forecast: {

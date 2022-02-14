@@ -2,6 +2,9 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { selectCityForecast } from '../Reducers/forecast';
 import type { WeatherData, Forecast } from '../Types/forecast';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { IconDefinition } from '@fortawesome/fontawesome-common-types';
+import { IconLookup } from '../Types/iconlookup';
 
 interface WeatherCardProps {
 	forecast: Forecast;
@@ -34,8 +37,8 @@ class WeatherCard extends React.Component<WeatherCardProps> {
 				<CardTag className="Weather-card" {...attributes}>
 					<div className="Weather-card-title">{day}</div>
 					<div className="Weather-card-data">
-						<div className="Weather-card-left">
-							<div className="icon-wrapper"><img alt={type} src={`http://openweathermap.org/img/wn/${data.icon}@4x.png`}></img></div>
+						<div className="Weather-card-left" title={data.desc}>
+							<div className="icon-wrapper"><FontAwesomeIcon icon={IconLookup[data.icon]} /></div>
 						</div>
 						<div className="Weather-card-right">
 							<div className="Weather-card-temperature">{Math.round(data.temp)}°</div>

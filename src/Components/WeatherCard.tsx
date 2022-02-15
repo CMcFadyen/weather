@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import { selectCityForecast } from '../Reducers/forecast';
 import type { WeatherData, Forecast } from '../Types/forecast';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { IconDefinition } from '@fortawesome/fontawesome-common-types';
 import { IconLookup } from '../Types/iconlookup';
 
 interface WeatherCardProps {
@@ -31,7 +30,6 @@ class WeatherCard extends React.Component<WeatherCardProps> {
 				const idt = new Intl.DateTimeFormat('en', {weekday: 'short'});
 				day = idt.format(new Date(data.dt*1000));
 			}
-			let type = data.type;
 			
 			return (
 				<CardTag className="Weather-card" {...attributes}>

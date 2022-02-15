@@ -31,7 +31,7 @@ class Weather extends React.Component<WeatherProps> {
 	
 	componentDidMount() {
 		const diff = Date.now() - this.props.timestamp;
-		if(diff > this.refreshInterval * 60 * 1000 || !this.props.forecastData || this.props.forecastData.length == 0) {
+		if(diff > this.refreshInterval * 60 * 1000 || !this.props.forecastData || this.props.forecastData.length === 0) {
 			this.fetchWeatherData();
 		} else {
 			this.timerId = setTimeout(() => { this.fetchWeatherData() }, this.refreshInterval * 60 * 1000 - diff);

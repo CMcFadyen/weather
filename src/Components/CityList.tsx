@@ -14,13 +14,13 @@ class CityList extends React.Component<CityListProps> {
 	render() {
 		return (
 			<ul id="cities">
-				<li className={"Weather-city "+(this.props.index == 0?'selected':'')} onClick={(e) => this.props.setIndex(0)}>
+				<li className={"Weather-city "+(this.props.index === 0?'selected':'')} onClick={(e) => this.props.setIndex(0)}>
 					{this.props.cities[0].name}
 				</li>
-				<li className={"Weather-city "+(this.props.index == 1?'selected':'')} onClick={(e) => this.props.setIndex(1)}>
+				<li className={"Weather-city "+(this.props.index === 1?'selected':'')} onClick={(e) => this.props.setIndex(1)}>
 					{this.props.cities[1].name}
 				</li>
-				<li className={"Weather-city "+(this.props.index == 2?'selected':'')} onClick={(e) => this.props.setIndex(2)}>
+				<li className={"Weather-city "+(this.props.index === 2?'selected':'')} onClick={(e) => this.props.setIndex(2)}>
 					{this.props.cities[2].name}
 				</li>
 			</ul>

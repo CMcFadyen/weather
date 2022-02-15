@@ -4,7 +4,7 @@ import './Weather.css';
 import { RootState } from './app/store';
 import { setTimestamp } from './Reducers/refresh';
 import { setCityForecast, clearForecasts } from './Reducers/forecast';
-import type { Forecast, CityForecast } from './Types/forecast';
+import type { WeatherData, Forecast, CityForecast } from './Types/forecast';
 import type { CityData } from './Types/city';
 
 import CityList from './Components/CityList';
@@ -89,31 +89,20 @@ class Weather extends React.Component<WeatherProps> {
 					desc: data.current.weather[0].description,
 					icon: data.current.weather[0].icon
 				},
-				daily: [{
-					dt: data.daily[1].dt+data.timezone_offset,
-					temp: data.daily[1].temp.day,
-					type: data.daily[1].weather[0].main,
-					desc: data.daily[1].weather[0].description,
-					icon: data.daily[1].weather[0].icon
-				},{
-					dt: data.daily[2].dt+data.timezone_offset,
-					temp: data.daily[2].temp.day,
-					type: data.daily[2].weather[0].main,
-					desc: data.daily[2].weather[0].description,
-					icon: data.daily[2].weather[0].icon
-				},{
-					dt: data.daily[3].dt+data.timezone_offset,
-					temp: data.daily[3].temp.day,
-					type: data.daily[3].weather[0].main,
-					desc: data.daily[3].weather[0].description,
-					icon: data.daily[3].weather[0].icon
-				},{
-					dt: data.daily[4].dt+data.timezone_offset,
-					temp: data.daily[4].temp.day,
-					type: data.daily[4].weather[0].main,
-					desc: data.daily[4].weather[0].description,
-					icon: data.daily[4].weather[0].icon
-				}]
+				daily: (function(daily) {
+					let forecasts: Array<WeatherData> = [];
+					// Tomorrow to +4 days
+					for(let i=1;i<=4;i++) {
+						forecasts.push({
+							dt: data.daily[i].dt+data.timezone_offset as number,
+							temp: data.daily[i].temp.day as number,
+							type: data.daily[i].weather[0].main as string,
+							desc: data.daily[i].weather[0].description as string,
+							icon: data.daily[i].weather[0].icon as string
+						});
+					}
+					return forecasts;
+				})(),
 			}
 		};
 		this.props.setCityForecast(forecast);

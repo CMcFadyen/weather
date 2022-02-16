@@ -63,9 +63,8 @@ body {
 }
 #today .Weather-card-data {
   height: 38%;
-  display: flex;
 }
-#today .Weather-card-data .Weather-card-left {
+@horizontal-center-flex .Weather-card-left {
   width: 50%;
   text-align: right;
   padding-right: 5px;

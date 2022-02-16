@@ -84,13 +84,9 @@ class Weather extends React.Component<WeatherProps> {
 	fetchCurrentWeatherData() {
 		this.currentTimerId = null;
 		this.cities.forEach((city:CityData, index:number) => {
-			console.log(`Fetch ${city.name} Current`);
 			fetch(`${this.weatherApiCurrent}?lat=${city.lat}&lon=${city.lon}&units=metric&appid=${this.apiKey}`)
 				.then((result) => result.json())
-				.then((data) => this.formatCurrentApiData(data, index))
-				.catch((error) => {
-					alert(`Can't fetch current weather data for ${city.name} right now, sorry!`)
-				});
+				.then((data) => this.formatCurrentApiData(data, index));
 		}, this);
 		this.props.setCurrentTimestamp(Date.now());
 	}
@@ -98,19 +94,17 @@ class Weather extends React.Component<WeatherProps> {
 	fetchDailyWeatherData() {
 		this.dailyTimerId = null;
 		this.cities.forEach((city:CityData, index:number) => {
-			console.log(`Fetch ${city.name} Daily`);
-			fetch(`${this.weatherApiDaily}?lat=${city.lat}&lon=${city.lon}&exclude=minutely,hourly,alerts&units=metric&appid=${this.apiKey}`)
+			/*fetch(`${this.weatherApiDaily}?lat=${city.lat}&lon=${city.lon}&exclude=minutely,hourly,alerts&units=metric&appid=${this.apiKey}`)
 				.then((result) => result.json())
 				.then((data) => this.formatDailyApiData(data, index))
 				.catch((error) => {
 					alert(`Can't fetch daily weather data for ${city.name} right now, sorry!`)
-				});
+				});*/
 		}, this);
 		this.props.setDailyTimestamp(Date.now());
 	}
 	
 	formatCurrentApiData(data: any, index: number) {
-		console.log(data);
 		const forecast:CityForecast = {
 			index: index,
 			current: {
@@ -121,7 +115,6 @@ class Weather extends React.Component<WeatherProps> {
 				icon: data.weather[0].icon
 			}
 		};
-		console.log(forecast);
 		this.props.setCityCurrentForecast(forecast);
 	}
 	

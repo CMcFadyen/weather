@@ -1,22 +1,27 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface RefreshState {
-	timestamp: number;
+	currentTimestamp: number;
+	dailyTimestamp: number;
 }
 
 const initialState: RefreshState = {
-	timestamp: 0,
+	currentTimestamp: 0,
+	dailyTimestamp: 0,
 }
 
 const refreshSlice = createSlice({
 	name: 'refresh',
 	initialState,
 	reducers: {
-		setTimestamp: (state, action: PayloadAction<number>) => {
-			state.timestamp = action.payload;
-		}
+		setCurrentTimestamp: (state, action: PayloadAction<number>) => {
+			state.currentTimestamp = action.payload;
+		},
+		setDailyTimestamp: (state, action: PayloadAction<number>) => {
+			state.dailyTimestamp = action.payload;
+		},
 	}
 });
 
-export const { setTimestamp } = refreshSlice.actions;
+export const { setCurrentTimestamp, setDailyTimestamp } = refreshSlice.actions;
 export default refreshSlice.reducer;

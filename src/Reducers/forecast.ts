@@ -1,19 +1,29 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../app/store';
-import type { Forecast, CityForecast } from '../Types/forecast';
+import type { CityForecast } from '../Types/forecast';
 
-const initialState = [] as Array<Forecast>;
+const initialState = [
+	{index: 0,
+	current: undefined,
+	daily: undefined},
+	{index: 0,
+	current: undefined,
+	daily: undefined},
+	{index: 0,
+	current: undefined,
+	daily: undefined},
+] as Array<CityForecast>;
 
 const forecastSlice = createSlice({
 	name: 'forecast',
 	initialState,
 	reducers: {
-		setCityForecast: (state, action: PayloadAction<CityForecast>) => {
-			state[action.payload.index] = action.payload.forecast;
+		setCityCurrentForecast: (state, action: PayloadAction<CityForecast>) => {
+			state[action.payload.index]['current'] = action.payload.current;
 			return state;
 		},
-		clearForecasts: (state) => {
-			state = [];
+		setCityDailyForecast: (state, action: PayloadAction<CityForecast>) => {
+			state[action.payload.index]['daily'] = action.payload.daily;
 			return state;
 		}
 	}
@@ -21,5 +31,5 @@ const forecastSlice = createSlice({
 
 export const selectCityForecast = (state: RootState) => ({forecast: state.forecast[state.city.index]});
 
-export const { setCityForecast, clearForecasts } = forecastSlice.actions;
+export const { setCityCurrentForecast, setCityDailyForecast } = forecastSlice.actions;
 export default forecastSlice.reducer;

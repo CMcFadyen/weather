@@ -2,8 +2,8 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import './Weather.css';
 import { RootState } from './app/store';
-import { setTimestamp } from './Reducers/refresh';
-import { setCityForecast, clearForecasts } from './Reducers/forecast';
+import { setCurrentTimestamp, setDailyTimestamp } from './Reducers/refresh';
+import { setCityCurrentForecast, setCityDailyForecast } from './Reducers/forecast';
 import type { WeatherData, CityForecast } from './Types/forecast';
 import type { CityData } from './Types/city';
 
@@ -11,10 +11,12 @@ import CityList from './Components/CityList';
 import WeatherCard from './Components/WeatherCard';
 
 interface WeatherProps {
-	timestamp: number;
-	setTimestamp: typeof setTimestamp;
-	setCityForecast: typeof setCityForecast;
-	clearForecasts: typeof clearForecasts;
+	currentTimestamp: number;
+	dailyTimestamp: number;
+	setCurrentTimestamp: typeof setCurrentTimestamp;
+	setDailyTimestamp: typeof setDailyTimestamp;
+	setCityCurrentForecast: typeof setCityCurrentForecast;
+	setCityDailyForecast: typeof setCityDailyForecast;
 }
 
 class Weather extends React.Component<WeatherProps> {
@@ -23,23 +25,35 @@ class Weather extends React.Component<WeatherProps> {
 		{name: 'Cape Town', lat: -33.928992, lon: 18.417396},
 		{name: 'Seoul', lat: 37.5666791, lon: 126.9782914}
 	];
-	refreshInterval = 10;
+	currentRefreshInterval = 10;
+	dailyRefreshInterval = 720;
 	apiKey = process.env.REACT_APP_API_KEY;
-	weatherAPI = process.env.REACT_APP_API;
-	timerId: ReturnType<typeof setTimeout> | null = null;
+	weatherApiCurrent = process.env.REACT_APP_API_CURRENT;
+	weatherApiDaily = process.env.REACT_APP_API_DAILY;
+	currentTimerId: ReturnType<typeof setTimeout> | null = null;
+	dailyTimerId: ReturnType<typeof setTimeout> | null = null;
 	
 	componentDidMount() {
-		const diff = Date.now() - this.props.timestamp;
-		if(diff > this.refreshInterval * 60 * 1000) {
-			this.fetchWeatherData();
+		const currentDiff = Date.now() - this.props.currentTimestamp;
+		const dailytDiff = Date.now() - this.props.dailyTimestamp;
+		if(currentDiff > this.currentRefreshInterval * 60 * 1000) {
+			this.fetchCurrentWeatherData();
 		} else {
-			this.timerId = setTimeout(() => { this.fetchWeatherData() }, this.refreshInterval * 60 * 1000 - diff);
+			this.currentTimerId = setTimeout(() => { this.fetchCurrentWeatherData() }, this.currentRefreshInterval * 60 * 1000 - currentDiff);
+		}
+		if(dailytDiff > this.dailyRefreshInterval * 60 * 1000) {
+			this.fetchDailyWeatherData();
+		} else {
+			this.currentTimerId = setTimeout(() => { this.fetchDailyWeatherData() }, this.dailyRefreshInterval * 60 * 1000 - dailytDiff);
 		}
 	}
 	
 	componentDidUpdate(prevProps: WeatherProps, prevState: RootState) {
-		if(this.timerId === null && this.props.timestamp) {
-			this.timerId = setTimeout(() => { this.fetchWeatherData() }, this.refreshInterval * 60 * 1000);
+		if(this.currentTimerId === null && this.props.currentTimestamp) {
+			this.currentTimerId = setTimeout(() => { this.fetchCurrentWeatherData() }, this.currentRefreshInterval * 60 * 1000);
+		}
+		if(this.dailyTimerId === null && this.props.dailyTimestamp) {
+			this.dailyTimerId = setTimeout(() => { this.fetchDailyWeatherData() }, this.dailyRefreshInterval * 60 * 1000);
 		}
 	}
 	
@@ -63,52 +77,81 @@ class Weather extends React.Component<WeatherProps> {
 	}
 	
 	componentWillUnmount() {
-		if(this.timerId) clearTimeout(this.timerId);
+		if(this.currentTimerId) clearTimeout(this.currentTimerId);
+		if(this.dailyTimerId) clearTimeout(this.dailyTimerId);
 	}
 	
-	fetchWeatherData() {
-		this.props.clearForecasts();
-		this.timerId = null;
+	fetchCurrentWeatherData() {
+		this.currentTimerId = null;
 		this.cities.forEach((city:CityData, index:number) => {
-			fetch(`${this.weatherAPI}?lat=${city.lat}&lon=${city.lon}&exclude=minutely,hourly,alerts&units=metric&appid=${this.apiKey}`)
+			console.log(`Fetch ${city.name} Current`);
+			fetch(`${this.weatherApiCurrent}?lat=${city.lat}&lon=${city.lon}&units=metric&appid=${this.apiKey}`)
 				.then((result) => result.json())
-				.then((data) => this.formatApiData(data, index))
+				.then((data) => this.formatCurrentApiData(data, index))
 				.catch((error) => {
-					alert(`Can't fetch weather data for ${city.name} right now, sorry!`)
+					alert(`Can't fetch current weather data for ${city.name} right now, sorry!`)
 				});
 		}, this);
-		this.props.setTimestamp(Date.now());
+		this.props.setCurrentTimestamp(Date.now());
 	}
 	
-	formatApiData(data: any, index: number) {
+	fetchDailyWeatherData() {
+		this.dailyTimerId = null;
+		this.cities.forEach((city:CityData, index:number) => {
+			console.log(`Fetch ${city.name} Daily`);
+			fetch(`${this.weatherApiDaily}?lat=${city.lat}&lon=${city.lon}&exclude=minutely,hourly,alerts&units=metric&appid=${this.apiKey}`)
+				.then((result) => result.json())
+				.then((data) => this.formatDailyApiData(data, index))
+				.catch((error) => {
+					alert(`Can't fetch daily weather data for ${city.name} right now, sorry!`)
+				});
+		}, this);
+		this.props.setDailyTimestamp(Date.now());
+	}
+	
+	formatCurrentApiData(data: any, index: number) {
+		console.log(data);
 		const forecast:CityForecast = {
 			index: index,
-			forecast: {
-				current: {
-					dt: data.current.dt+data.timezone_offset,
-					temp: data.current.temp,
-					type: data.current.weather[0].main,
-					desc: data.current.weather[0].description,
-					icon: data.current.weather[0].icon
-				},
-				daily: (function(daily) {
-					let forecasts: Array<WeatherData> = [];
-					// Tomorrow to +4 days
-					for(let i=1;i<=4;i++) {
-						forecasts.push({
-							dt: data.daily[i].dt+data.timezone_offset as number,
-							temp: data.daily[i].temp.day as number,
-							type: data.daily[i].weather[0].main as string,
-							desc: data.daily[i].weather[0].description as string,
-							icon: data.daily[i].weather[0].icon as string
-						});
-					}
-					return forecasts;
-				})(),
+			current: {
+				dt: data.dt+data.timezone,
+				temp: data.main.temp,
+				type: data.weather[0].main,
+				desc: data.weather[0].description,
+				icon: data.weather[0].icon
 			}
 		};
-		this.props.setCityForecast(forecast);
+		console.log(forecast);
+		this.props.setCityCurrentForecast(forecast);
+	}
+	
+	formatDailyApiData(data: any, index: number) {
+		const forecast:CityForecast = {
+			index: index,
+			daily: (function(daily) {
+				let forecasts: Array<WeatherData> = [];
+				// Tomorrow to +4 days
+				for(let i=1;i<=4;i++) {
+					forecasts.push({
+						dt: data.daily[i].dt+data.timezone_offset as number,
+						temp: data.daily[i].temp.day as number,
+						type: data.daily[i].weather[0].main as string,
+						desc: data.daily[i].weather[0].description as string,
+						icon: data.daily[i].weather[0].icon as string
+					});
+				}
+				return forecasts;
+			})(),
+		};
+		this.props.setCityDailyForecast(forecast);
 	}
 }
 
-export default connect((state: RootState) => ({timestamp: state.refresh.timestamp}), {setTimestamp, setCityForecast, clearForecasts})(Weather);
+const mapStateToProps = (state: RootState) => {
+	return {
+		currentTimestamp: state.refresh.currentTimestamp,
+		dailyTimestamp: state.refresh.dailyTimestamp
+	};
+}
+
+export default connect(mapStateToProps, {setCurrentTimestamp, setDailyTimestamp, setCityCurrentForecast, setCityDailyForecast})(Weather);

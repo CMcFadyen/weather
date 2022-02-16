@@ -6,12 +6,8 @@ export interface WeatherData {
 	icon: string;
 }
 
-export interface Forecast {
-	current: WeatherData;
-	daily: Array<WeatherData>;
-}
-
 export interface CityForecast {
 	index: number;
-	forecast: Forecast;
+	current?: WeatherData;
+	daily?: Array<WeatherData>;
 }

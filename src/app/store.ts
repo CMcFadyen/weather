@@ -10,7 +10,11 @@ export const store = configureStore({
 		forecast: forecastReducer,
 		refresh: refreshReducer,
 	},
-	preloadedState: loadState()
+	preloadedState: (function() {
+		let oldState = loadState();
+		if(oldState.timestamp) return undefined;
+		return oldState;
+	})()
 });
 
 store.subscribe(() => {

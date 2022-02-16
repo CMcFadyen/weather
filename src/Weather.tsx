@@ -94,12 +94,12 @@ class Weather extends React.Component<WeatherProps> {
 	fetchDailyWeatherData() {
 		this.dailyTimerId = null;
 		this.cities.forEach((city:CityData, index:number) => {
-			/*fetch(`${this.weatherApiDaily}?lat=${city.lat}&lon=${city.lon}&exclude=minutely,hourly,alerts&units=metric&appid=${this.apiKey}`)
+			fetch(`${this.weatherApiDaily}?lat=${city.lat}&lon=${city.lon}&exclude=minutely,hourly,alerts&units=metric&appid=${this.apiKey}`)
 				.then((result) => result.json())
 				.then((data) => this.formatDailyApiData(data, index))
 				.catch((error) => {
 					alert(`Can't fetch daily weather data for ${city.name} right now, sorry!`)
-				});*/
+				});
 		}, this);
 		this.props.setDailyTimestamp(Date.now());
 	}

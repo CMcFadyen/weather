@@ -23,7 +23,7 @@ class Weather extends React.Component<WeatherProps> {
 		{name: 'Cape Town', lat: -33.928992, lon: 18.417396},
 		{name: 'Seoul', lat: 37.5666791, lon: 126.9782914}
 	];
-	refreshInterval = 1;
+	refreshInterval = 10;
 	apiKey = process.env.REACT_APP_API_KEY;
 	weatherAPI = process.env.REACT_APP_API;
 	timerId: ReturnType<typeof setTimeout> | null = null;
